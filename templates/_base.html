@@ -1,0 +1,27 @@
+{% load static %}
+<!doctype html>
+<html>
+  <head>
+    <link rel="icon" type="image/png" href="{% static 'images/head_icon.png' %}">
+    <title>商品管理系统</title>
+    <link rel="stylesheet" href="{% static 'css/_base.css' %}">
+    {% block cssrc %}{% endblock %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <header>
+        <a title="主页" href="{% url 'product_list' %}">商品管理系统</a>
+      <form action="{% url 'search_result' %}" method="get" >
+        {% csrf_token %}
+        <div id="search-flex-box">
+          <input id="search-box" type="text" name="query"
+          placeholder="搜索商品/类别/备注">
+          <input id="search-button" type="submit" value="搜索"></div>
+      </form>
+    </header>
+    <section id="content">
+      {% block content %}{% endblock %}
+    </section>
+  </body>
+</html>

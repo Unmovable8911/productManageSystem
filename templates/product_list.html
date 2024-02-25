@@ -1,0 +1,152 @@
+{% extends "_base.html" %}
+
+{% load static %}
+
+{% block cssrc %}
+<link rel="stylesheet" href="{% static 'css/product_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<h2 class="caption">商品列表</h2>
+<div id="products-table-container">
+  <table id="products-table">
+    <tr>
+      <th class="name-col">名称</th>
+      <th class="catagory-">
+        类别 <span class="new">
+          <button onclick="openCatagoryDialog()">⚙</button></span>
+      </th>
+      <th class="purchase-price-col">进价(元)</th>
+      <th class="price-col">单价(元)</th>
+      <th class="unit-col">单位</th>
+      <th class="manufacture-date-col">生产日期</th>
+      <th class="shelf-life-col">保质期</th>
+      <th class="expire-date-col">过期日期</th>
+      <th class="picture-col">图片</th>
+      <th class="remark-col">备注</th>
+      <th></th>
+    </tr>
+    {% for product in products %}
+    <tr>
+      <td>{{product.name}}</td>
+      <td>{{product.catagory.title}}</td>
+
+      {% if product.purchase_price %}
+      <td>{{product.purchase_price}}</td>
+      {% else %}
+      <td></td>
+      {% endif %}
+
+      <td>{{product.price}}</td>
+      <td>{{product.unit}}</td>
+
+      {% if product.manufacture_date %}
+      <td class="date">{{product.manufacture_date}}</td>
+      {% else %}
+      <td></td>
+      {% endif %}
+
+      {% if product.shelf_life and product.shelf_life_unit %}
+      <td>{{product.shelf_life}}{{product.shelf_life_unit}}</td>
+      {% else %}
+      <td></td>
+      {% endif %}
+
+      {% if product.expire_date %}
+      <td class="date">{{product.expire_date}}</td>
+      {% else %}
+      <td></td>
+      {% endif %}
+
+      {% if product.picture %}
+      <td><a href="{% url 'full_picture' product.identity %}" title="{{product.name}}原图" target="_blank">
+          <img src="{{product.thumnail.url}}">
+        </a>
+      </td>
+      {% else %}
+      <td></td>
+      {% endif %}
+
+      {% if product.remark %}
+      <td>{{product.remark}}</td>
+      {% else %}
+      <td></td>
+      {% endif %}
+
+      <td>
+        <form method="POST" action="{% url 'delete_product' product.identity %}">
+          {% csrf_token %}
+          <input type="submit" value="删除">
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    <tr id="product-form">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <td>{{ product_form.name }}</td>
+        <td>{{ product_form.catagory }}</td>
+        <td>{{ product_form.purchase_price }}</td>
+        <td>{{ product_form.price }}</td>
+        <td>{{ product_form.unit }}</td>
+        <td>{{ product_form.manufacture_date }}</td>
+        <td>
+          <div id="shelf-life">
+            {{product_form.shelf_life}}{{product_form.shelf_life_unit}}
+          </div>
+        </td>
+        <td>{{ product_form.expire_date }}</td>
+        <td>{{ product_form.picture }}</td>
+        <td>{{ product_form.remark }}</td>
+        <td><input type="submit" value="➕"></td>
+      </form>
+    </tr>
+  </table>
+</div>
+<dialog id="catagory-dialog">
+  <h2 class="dialog-caption">类别管理</h2>
+  <div id="catagory-table-container">
+    <table id="catagory-table">
+      {% for catagory in catagories %}
+      <tr>
+        <td>{{catagory.title}}</td>
+        <td><a href="{% url 'delete_catagory' catagory.identity %}">删除</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <table>
+    <tr>
+      <form action="{% url 'new_catagory' %}" method="post">
+        <td>
+          {% csrf_token %}
+          <input type="text" name="catagory-title" placeholder="新建类别名称" required>
+        </td>
+        <td>
+          <button type="submit">保存</button>
+        </td>
+      </form>
+    </tr>
+  </table>
+  <button id="cata-close-button" onclick="closeCatagoryDialog()">X</button>
+</dialog>
+<div class="pagination">
+  <span class="step-links">
+    {% if products.has_previous %}
+    <a href="?page=1">&laquo; </a>
+    <a href="?page={{ products.previous_page_number }}">&lt; | </a>
+    {% endif %}
+
+    <span class="current">
+      第{{ products.number }}页，共{{ products.paginator.num_pages }}页
+    </span>
+
+    {% if products.has_next %}
+    <a href="?page={{ products.next_page_number }}"> | &gt;</a>
+    <a href="?page={{ products.paginator.num_pages }}"> &raquo;</a>
+    {% endif %}
+  </span>
+</div>
+<div id="blur"></div>
+<script src="{% static 'js/product_list.js' %}"></script>
+{% endblock %}
